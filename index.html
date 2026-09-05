@@ -291,12 +291,12 @@
       </div>
 
       <!-- 4 Speech Bubbles Container (Populated Dynamically) -->
-      <div id="dynamicSpeechBubblesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-8 pt-2">
+      <div id="dynamicSpeechBubblesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mb-3 pt-1">
         <!-- Bubbles injected by applyActiveTaskView() -->
       </div>
 
       <!-- Original Exam Scan Image (if available from PDF) -->
-      <div id="customTaskPdfScanWrapper" class="hidden mt-4 pt-3 border-t border-slate-200">
+      <div id="customTaskPdfScanWrapper" class="hidden mt-3 pt-3 border-t border-slate-200">
         <button type="button" onclick="toggleTaskPdfScan()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 inline-flex items-center">
           <i class="fa-solid fa-file-pdf mr-1.5"></i><span id="togglePdfScanBtnText">View Original Exam Paper Scan</span>
         </button>
@@ -305,23 +305,10 @@
         </div>
       </div>
 
-      <!-- Official Exam Instructions & Paragraph Requirements -->
-      <div class="bg-indigo-50/60 rounded-xl p-4 sm:p-5 border border-indigo-100 space-y-2 text-xs sm:text-sm text-slate-700 mt-4">
-        <p class="font-bold text-indigo-950 flex items-center">
-          <i class="fa-solid fa-circle-info text-indigo-600 mr-2"></i>Task Guidelines:
-        </p>
-        <ul class="list-disc list-inside space-y-1.5 text-slate-700 ml-1">
-          <li>Write an <strong>article</strong> for the project giving your views about the issue.</li>
-          <li>Your article should be between <strong>150 and 200 words</strong> long (minimum 130 words to submit).</li>
-          <li>Structure your work into <strong>4 paragraphs</strong>: <em>1. Introduction, 2. Advantages, 3. Disadvantages, 4. Conclusion & Recommendation</em>.</li>
-          <li>The comments above may give you some ideas, but you are free to use any ideas of your own.</li>
-        </ul>
-      </div>
-
     </section>
 
     <!-- Student Writing & Planning Area (Two Columns) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-6">
       
       <!-- Left Column: Brainstorming & Exam Aids (4 Cols) -->
       <div class="lg:col-span-4 space-y-5">
@@ -370,22 +357,6 @@
             placeholder="Plan here..." 
             class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50/50 leading-relaxed font-sans"
           ></textarea>
-        </div>
-
-        <!-- Quick Linking Connectors & Cohesive Phrases -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2.5">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
-            <i class="fa-solid fa-link text-indigo-600 mr-2"></i>Cohesion & Connectors
-          </h3>
-          <p class="text-[11px] text-slate-500">Tap to insert cohesive phrases into your writing:</p>
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="insertConnector('On the one hand, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">On the one hand,</button>
-            <button type="button" onclick="insertConnector('Conversely, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">Conversely,</button>
-            <button type="button" onclick="insertConnector('Furthermore, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">Furthermore,</button>
-            <button type="button" onclick="insertConnector('In addition to this, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">In addition to this,</button>
-            <button type="button" onclick="insertConnector('From my perspective, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">From my perspective,</button>
-            <button type="button" onclick="insertConnector('In conclusion, ')" class="text-[11px] px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg font-medium transition">In conclusion,</button>
-          </div>
         </div>
 
       </div>
@@ -1313,8 +1284,8 @@
 
   </div>
 
-  <!-- App Footer with Author Details -->
-  <footer class="mt-auto py-4 border-t border-slate-200 bg-white text-center text-xs text-slate-500 no-print">
+    <!-- App Footer with Author Details -->
+  <footer class="sticky bottom-0 z-30 py-2.5 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-2px_10px_rgba(0,0,0,0.04)] text-center text-xs text-slate-500 no-print">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
       <span class="font-bold text-slate-800">Cambridge IGCSE ESL Exercise 6 Workspace</span>
       <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-600">
@@ -1342,25 +1313,25 @@
         bubbles: [
           {
             text: '“It would take twice the time for me to travel by bus or train than by car.”',
-            font: 'font-handwriting text-xl',
+            font: 'font-sans text-xs sm:text-sm font-medium',
             tail: 'bubble-tail-bottom-left',
             note: 'It would take twice the time for me to travel by bus or train than by car.'
           },
           {
             text: '“Cars cause more accidents than any other forms of transport.”',
-            font: 'font-serif italic text-lg',
+            font: 'font-sans text-xs sm:text-sm font-medium',
             tail: 'bubble-tail-bottom-right',
             note: 'Cars cause more accidents than any other forms of transport.'
           },
           {
             text: '“It’s cheaper for a family to travel together in a car than by public transport.”',
-            font: 'font-serif italic text-lg',
+            font: 'font-sans text-xs sm:text-sm font-medium',
             tail: 'bubble-tail-bottom-left',
             note: 'It’s cheaper for a family to travel together in a car than by public transport.'
           },
           {
             text: '“There are so many cars on the road, drivers become frustrated and angry.”',
-            font: 'font-handwriting text-xl',
+            font: 'font-sans text-xs sm:text-sm font-medium',
             tail: 'bubble-tail-bottom-right',
             note: 'There are so many cars on the road, drivers become frustrated and angry.'
           }
@@ -1644,14 +1615,14 @@ function getOrCreateTasksSheet() {
         bubbles.forEach((b, idx) => {
           const isLeft = idx % 2 === 0;
           const bubbleDiv = document.createElement('div');
-          bubbleDiv.className = `speech-bubble ${b.tail || (isLeft ? 'bubble-tail-bottom-left' : 'bubble-tail-bottom-right')} p-5 shadow-sm bg-slate-50/50 border-indigo-950 flex flex-col justify-between`;
+          bubbleDiv.className = `speech-bubble ${b.tail || (isLeft ? 'bubble-tail-bottom-left' : 'bubble-tail-bottom-right')} p-3.5 sm:p-4 shadow-sm bg-slate-50/50 border-indigo-950 flex flex-col justify-between`;
 
           bubbleDiv.innerHTML = `
-            <p class="${b.font || (idx % 2 === 0 ? 'font-handwriting text-xl' : 'font-serif italic text-lg')} text-slate-800 font-semibold leading-relaxed select-none">
+            <p class="text-xs sm:text-sm font-medium text-slate-800 leading-relaxed select-none">
               ${escapeHtml(b.text)}
             </p>
-            <div class="mt-3 flex items-center justify-end text-xs text-slate-500 pt-2 border-t border-slate-100">
-              <button type="button" onclick="insertNote('${escapeHtml(b.note || b.text.replace(/["“”]/g, ''))}')" class="px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition inline-flex items-center">
+            <div class="mt-2 flex items-center justify-end text-xs text-slate-500 pt-1.5 border-t border-slate-100">
+              <button type="button" onclick="insertNote('${escapeHtml(b.note || b.text.replace(/["“”]/g, ''))}')" class="px-2 py-0.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition inline-flex items-center">
                 <i class="fa-solid fa-plus mr-1"></i>Add to plan
               </button>
             </div>
@@ -1856,25 +1827,25 @@ function getOrCreateTasksSheet() {
       const bubbles = [
         {
           text: b1Val,
-          font: 'font-handwriting text-xl',
+          font: 'font-sans text-xs sm:text-sm font-medium',
           tail: 'bubble-tail-bottom-left',
           note: b1Val.replace(/["“”]/g, '')
         },
         {
           text: b2Val,
-          font: 'font-serif italic text-lg',
+          font: 'font-sans text-xs sm:text-sm font-medium',
           tail: 'bubble-tail-bottom-right',
           note: b2Val.replace(/["“”]/g, '')
         },
         {
           text: b3Val,
-          font: 'font-serif italic text-lg',
+          font: 'font-sans text-xs sm:text-sm font-medium',
           tail: 'bubble-tail-bottom-left',
           note: b3Val.replace(/["“”]/g, '')
         },
         {
           text: b4Val,
-          font: 'font-handwriting text-xl',
+          font: 'font-sans text-xs sm:text-sm font-medium',
           tail: 'bubble-tail-bottom-right',
           note: b4Val.replace(/["“”]/g, '')
         }
