@@ -7,14 +7,46 @@
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* "Examiner's Paper" token system — swaps the generic indigo/slate
+       SaaS palette for a warm exam-paper cream + ink-navy identity,
+       without touching the hundreds of existing class references. */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            indigo: {
+              50: '#F0F2F8', 100: '#DDE3EF', 200: '#B9C5DF', 300: '#8FA0C4',
+              400: '#5F72A0', 500: '#3F5280', 600: '#2C3E63', 700: '#22314F',
+              800: '#1A2740', 900: '#141D30', 950: '#0C111D'
+            },
+            slate: {
+              50: '#FAF7F0', 100: '#F2EDE1', 200: '#E4DCC9', 300: '#D2C6AC',
+              400: '#A79A81', 500: '#8B7E68', 600: '#6B6252', 700: '#4F473B',
+              800: '#382F26', 900: '#241D17', 950: '#171310'
+            },
+            examred: {
+              50: '#FBEEEC', 100: '#F3D2CC', 300: '#D97D6E', 500: '#B23A2E',
+              600: '#9A2F24', 700: '#7A2119'
+            }
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans"', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
+            mono: ['"IBM Plex Mono"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Google Fonts: Inter, Merriweather, Caveat (Handwriting) -->
+  <!-- Google Fonts: IBM Plex Sans/Mono, Merriweather, Caveat (Handwriting) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
   
   <!-- PDF.js for PDF task extraction and rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -26,9 +58,9 @@
 
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
-      color: #1e293b;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background-color: #FAF7F0;
+      color: #382F26;
     }
     .font-handwriting {
       font-family: 'Caveat', cursive;
@@ -37,16 +69,23 @@
       font-family: 'Merriweather', serif;
     }
 
+    /* Header instruction rule — the double navy/red bar under the
+       masthead, styled after the rule on a Cambridge exam paper. */
+    .exam-rule {
+      height: 3px;
+      background: linear-gradient(to right, #2C3E63 0%, #2C3E63 70%, #B23A2E 70%, #B23A2E 100%);
+    }
+
     /* Speech bubble styling */
     .speech-bubble {
       position: relative;
-      background: #ffffff;
-      border: 2px solid #1e293b;
+      background: #FEFCF7;
+      border: 2px solid #382F26;
       border-radius: 1.5rem;
       transition: all 0.2s ease;
     }
     .speech-bubble:hover {
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px -5px rgba(44, 62, 99, 0.15);
       transform: translateY(-2px);
     }
     .bubble-tail-bottom-left::after {
@@ -56,7 +95,7 @@
       left: 32px;
       border-width: 16px 16px 0 0;
       border-style: solid;
-      border-color: #ffffff transparent;
+      border-color: #FEFCF7 transparent;
       display: block;
       width: 0;
     }
@@ -67,7 +106,7 @@
       left: 30px;
       border-width: 19px 19px 0 0;
       border-style: solid;
-      border-color: #1e293b transparent;
+      border-color: #382F26 transparent;
       display: block;
       width: 0;
     }
@@ -78,7 +117,7 @@
       right: 32px;
       border-width: 16px 0 0 16px;
       border-style: solid;
-      border-color: #ffffff transparent;
+      border-color: #FEFCF7 transparent;
       display: block;
       width: 0;
     }
@@ -89,7 +128,7 @@
       right: 30px;
       border-width: 19px 0 0 19px;
       border-style: solid;
-      border-color: #1e293b transparent;
+      border-color: #382F26 transparent;
       display: block;
       width: 0;
     }
@@ -100,14 +139,14 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1f5f9;
+      background: #F2EDE1;
     }
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #D2C6AC;
       border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #A79A81;
     }
 
     /* Print styles optimized for 1-Page A4 report */
@@ -140,8 +179,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-800">
 
-  <!-- Header Navigation -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+  <header class="sticky top-0 z-40 bg-[#FEFCF7]/95 backdrop-blur-md shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
       <!-- App Brand & Borderless Logo -->
@@ -160,9 +198,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <span class="text-xs font-extrabold tracking-wider text-indigo-600 uppercase">Cambridge IGCSE ESL</span>
-            <span class="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-600 rounded">0510 / 0511</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-mono font-semibold border border-examred-500 text-examred-600 rounded-sm">0510/0511</span>
           </div>
-          <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Exercise 6: Article Writing Workspace</h1>
+          <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight font-serif">Exercise 6: Article Writing Workspace</h1>
         </div>
       </div>
 
@@ -226,6 +264,7 @@
 
       </div>
     </div>
+    <div class="exam-rule"></div>
   </header>
 
   <main id="studentView" class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -502,8 +541,7 @@
 
           <!-- Google Sheets Sync Button -->
           <button 
-            id="btnManualSyncSheets"
-            onclick="syncWithGoogleSheets(true)" 
+            onclick="syncWithGoogleSheets()" 
             class="px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition inline-flex items-center"
           >
             <i id="sheetsSyncIcon" class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Sync Sheets
@@ -607,8 +645,8 @@
           <!-- Dynamic student cards rendered here -->
           <div id="emptySubmissionsState" class="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
             <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
-            <p class="text-xs font-medium">No submissions found.</p>
-            <p class="text-[11px] mt-1 text-slate-400">Click "Sync Sheets" to retrieve all student papers from Google Sheets.</p>
+            <p class="text-xs font-medium">No submissions yet.</p>
+            <p class="text-[11px] mt-1 text-slate-400">Students submit online or you can import JSON files above.</p>
           </div>
         </div>
       </div>
@@ -816,6 +854,7 @@
     </div>
 
   </main>
+
 
   <!-- MODAL: TEACHER PASSWORD VERIFICATION -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -1285,7 +1324,7 @@
 
   </div>
 
-  <!-- App Footer with Author Details -->
+    <!-- App Footer with Author Details -->
   <footer class="sticky bottom-0 z-30 py-2.5 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-2px_10px_rgba(0,0,0,0.04)] text-center text-xs text-slate-500 no-print">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
       <span class="font-bold text-slate-800">Cambridge IGCSE ESL Exercise 6 Workspace</span>
@@ -1302,7 +1341,7 @@
     const TEACHER_PASSWORD = "Pakistan1947";
     const DEFAULT_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxLsT15Fh_9z9bu9GqBowVJpp9YEk_L0U2HXbevj9EjM70LFOi5ZmjcTT5_vy2VZRON/exec";
     let googleSheetsUrl = localStorage.getItem('igcse_sheets_url') || DEFAULT_SHEETS_URL;
-    let editingTaskId = null;
+    let editingTaskId = null; // Track if we are editing an existing task
 
     /* Task 1 Default Data with 4 Speech Bubbles */
     let availableTasks = [
@@ -1370,16 +1409,14 @@
       ]
     };
 
-    /* Upgraded, Concurrency-Safe Google Apps Script Code.gs Template */
+    /* Full Google Apps Script Code.gs Template */
     const CODE_GS_TEMPLATE = `/**
  * Cambridge IGCSE ESL Exercise 6 - Google Apps Script Backend
- * Enhanced with LockService, Task/Candidate indexing, and Multi-Device Restore
- * Created for: Amanullah Khan (amankhan@smartstudygrid.com)
+ * Handles student submissions, writing tasks synchronization, and teacher grading.
  */
 function doGet(e) {
-  var action = e && e.parameter ? e.parameter.action : '';
+  var action = e.parameter.action;
   
-  // 1. Return all Tasks
   if (action === 'getTasks') {
     var taskSheet = getOrCreateTasksSheet();
     var taskData = taskSheet.getDataRange().getValues();
@@ -1397,69 +1434,44 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // 2. Query specific Candidate (for multi-browser student lookup)
-  if (action === 'getStudent') {
-    var candidateId = (e.parameter.candidateId || '').trim().toUpperCase();
-    var sheet = getOrCreateSubmissionsSheet();
+  var sheet = getOrCreateSubmissionsSheet();
+  if (action === 'getSubmissions') {
     var data = sheet.getDataRange().getValues();
-    var foundSub = null;
-    for (var i = data.length - 1; i >= 1; i--) {
-      if (String(data[i][2]).trim().toUpperCase() === candidateId) {
-        try {
-          foundSub = JSON.parse(data[i][10]);
-        } catch(err) {
-          foundSub = {
-            id: data[i][0], timestamp: data[i][1], studentId: data[i][2],
-            name: data[i][3], className: data[i][4], headline: data[i][5],
-            wordCount: data[i][6], marks: { converted15: data[i][7], raw26: data[i][8] },
-            feedback: data[i][9]
-          };
-        }
-        break;
+    var submissions = [];
+    for (var i = 1; i < data.length; i++) {
+      if (!data[i][0]) continue;
+      try {
+        var sub = JSON.parse(data[i][10]); // Column K raw JSON
+        submissions.push(sub);
+      } catch (err) {
+        submissions.push({
+          id: data[i][0],
+          timestamp: data[i][1],
+          studentId: data[i][2],
+          name: data[i][3],
+          className: data[i][4],
+          headline: data[i][5],
+          wordCount: data[i][6],
+          marks: { converted15: data[i][7], raw26: data[i][8] },
+          feedback: data[i][9],
+          articleBody: ''
+        });
       }
     }
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success', submission: foundSub }))
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success', submissions: submissions }))
       .setMimeType(ContentService.MimeType.JSON);
   }
-
-  // 3. Return all Submissions (default)
-  var sheet = getOrCreateSubmissionsSheet();
-  var data = sheet.getDataRange().getValues();
-  var submissions = [];
-  for (var i = 1; i < data.length; i++) {
-    if (!data[i][0]) continue;
-    try {
-      var sub = JSON.parse(data[i][10]); // Column K raw JSON
-      submissions.push(sub);
-    } catch (err) {
-      submissions.push({
-        id: data[i][0],
-        timestamp: data[i][1],
-        studentId: data[i][2],
-        name: data[i][3],
-        className: data[i][4],
-        headline: data[i][5],
-        wordCount: data[i][6],
-        marks: { converted15: data[i][7], raw26: data[i][8] },
-        feedback: data[i][9],
-        articleBody: ''
-      });
-    }
-  }
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', submissions: submissions }))
+  
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ready' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
-  var lock = LockService.getScriptLock();
   try {
-    lock.waitLock(15000); // 15 seconds lock to prevent collisions
-    
     var body = JSON.parse(e.postData.contents);
     var action = body.action;
     var payload = body.payload;
     
-    // Sync Task List
     if (action === 'syncTasks') {
       var taskSheet = getOrCreateTasksSheet();
       taskSheet.clearContents();
@@ -1474,22 +1486,14 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Submit Article or Save Grading
     var sheet = getOrCreateSubmissionsSheet();
     var data = sheet.getDataRange().getValues();
     
     if (action === 'submitArticle' || action === 'saveGrading') {
       var foundRow = -1;
-      var cleanSubId = String(payload.id || '');
-      var cleanCandId = String(payload.studentId || '').trim().toUpperCase();
-      var cleanTaskId = String(payload.taskId || '');
-
       for (var r = 1; r < data.length; r++) {
-        var rowId = String(data[r][0]);
-        var rowCandId = String(data[r][2]).trim().toUpperCase();
-        
-        // Match by exact ID or Candidate ID + Task ID
-        if (rowId === cleanSubId || (cleanCandId && rowCandId === cleanCandId && String(data[r][5]) === String(payload.headline))) {
+        if (String(data[r][0]) === String(payload.id) || 
+           (payload.studentId && String(data[r][2]) === String(payload.studentId) && String(data[r][5]) === String(payload.headline))) {
           foundRow = r + 1;
           break;
         }
@@ -1517,14 +1521,12 @@ function doPost(e) {
         sheet.appendRow(rowValues);
       }
       
-      return ContentService.createTextOutput(JSON.stringify({ status: 'success', id: payload.id }))
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
-  } finally {
-    lock.releaseLock();
   }
 }
 
@@ -1565,9 +1567,11 @@ function getOrCreateTasksSheet() {
     let isTeacherUnlocked = false;
 
     /* Timer state */
-    let timerSeconds = 1800;
+    let timerSeconds = 1800; // 30 mins
     let timerInterval = null;
     let timerRunning = false;
+
+    /* Staged PDF data for task creation */
     let stagedPdfDataUrl = null;
 
     window.onload = function () {
@@ -1584,12 +1588,36 @@ function getOrCreateTasksSheet() {
 
       switchView('student');
 
-      // CRITICAL FIX: Automatically restore tasks and submissions from Google Sheets in the background
-      // This ensures any newly opened browser or device immediately has access to all papers
-      setTimeout(() => {
-        syncWithGoogleSheets(false);
-      }, 500);
+      // Auto-pull assignments from Google Sheets so any PC/browser sees
+      // the same task list without needing a manual "Sync Sheets" click.
+      autoLoadTasksFromSheets();
     };
+
+    async function autoLoadTasksFromSheets() {
+      if (!googleSheetsUrl) return;
+      try {
+        const resp = await fetch(`${googleSheetsUrl}?action=getTasks`);
+        const json = await resp.json();
+        if (json && Array.isArray(json.tasks) && json.tasks.length > 0) {
+          let added = 0;
+          json.tasks.forEach(remoteTask => {
+            if (remoteTask.id && !availableTasks.some(t => t.id === remoteTask.id)) {
+              availableTasks.push(remoteTask);
+              added++;
+            }
+          });
+          if (added > 0) {
+            saveTasksToStorage();
+            renderTaskDropdown();
+            applyActiveTaskView();
+          }
+        }
+      } catch (err) {
+        // Silent on load - the "Sync Sheets" button still works manually
+        // and shows an error if the URL is unreachable.
+        console.warn('Auto task load from Sheets skipped:', err);
+      }
+    }
 
     function loadStoredTasks() {
       const stored = localStorage.getItem('igcse_esl_custom_tasks');
@@ -1894,6 +1922,7 @@ function getOrCreateTasksSheet() {
       ];
 
       if (editingTaskId) {
+        // Update existing task
         const existingIdx = availableTasks.findIndex(t => t.id === editingTaskId);
         if (existingIdx !== -1) {
           availableTasks[existingIdx].title = title;
@@ -1913,6 +1942,7 @@ function getOrCreateTasksSheet() {
         syncTasksToGoogleSheets();
         showNotification("Task Updated", `"${updatedTitle}" has been saved.`, "success");
       } else {
+        // Create brand new task
         const newTask = {
           id: 'task_' + Date.now(),
           title: title,
@@ -2030,6 +2060,7 @@ function getOrCreateTasksSheet() {
     function updateWordCount() {
       const text = document.getElementById('articleBodyInput')?.value || '';
       const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      
       const paras = text.split(/\n+/).filter(p => p.trim().length > 0).length;
 
       const wordBadge = document.getElementById('wordCountBadge');
@@ -2074,6 +2105,18 @@ function getOrCreateTasksSheet() {
         planner.value = '• ' + text;
       }
       planner.scrollTop = planner.scrollHeight;
+    }
+
+    function insertConnector(phrase) {
+      const editor = document.getElementById('articleBodyInput');
+      if (!editor) return;
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const current = editor.value;
+      editor.value = current.substring(0, start) + phrase + current.substring(end);
+      editor.focus();
+      editor.selectionStart = editor.selectionEnd = start + phrase.length;
+      updateWordCount();
     }
 
     function clearPlanner() {
@@ -2197,7 +2240,7 @@ function getOrCreateTasksSheet() {
       // Submit directly to Google Sheets Web App
       if (googleSheetsUrl) {
         try {
-          fetch(googleSheetsUrl, {
+          await fetch(googleSheetsUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -2254,7 +2297,7 @@ function getOrCreateTasksSheet() {
       showNotification("Copied", "Your article text has been copied to your clipboard.", "info");
     }
 
-    async function loadStudentWorkById() {
+    function loadStudentWorkById() {
       const idInp = document.getElementById('navStudentIdInput');
       const candidateId = idInp?.value?.trim().toUpperCase();
       if (!candidateId) {
@@ -2262,22 +2305,7 @@ function getOrCreateTasksSheet() {
         return;
       }
 
-      let match = submissions.find(s => s.studentId === candidateId);
-      
-      // If not found locally, query Google Sheets directly!
-      if (!match && googleSheetsUrl) {
-        try {
-          const res = await fetch(`${googleSheetsUrl}?action=getStudent&candidateId=${encodeURIComponent(candidateId)}&_t=${Date.now()}`);
-          const json = await res.json();
-          if (json && json.submission) {
-            ingestStudentObject(json.submission);
-            match = json.submission;
-          }
-        } catch(e) {
-          console.warn('Online student query error:', e);
-        }
-      }
-
+      const match = submissions.find(s => s.studentId === candidateId);
       if (match) {
         document.getElementById('studentIdInput').value = match.studentId;
         document.getElementById('studentNameInput').value = match.name || '';
@@ -2653,8 +2681,8 @@ function getOrCreateTasksSheet() {
         empty.className = "p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl";
         empty.innerHTML = `
           <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
-          <p class="text-xs font-medium">No submissions found.</p>
-          <p class="text-[11px] mt-1 text-slate-400">Click "Sync Sheets" to retrieve all student papers from Google Sheets.</p>
+          <p class="text-xs font-medium">No submissions yet.</p>
+          <p class="text-[11px] mt-1 text-slate-400">Students submit online or you can import JSON files above.</p>
         `;
         container.appendChild(empty);
         return;
@@ -2705,6 +2733,7 @@ function getOrCreateTasksSheet() {
       document.getElementById('activeArticleBody').innerText = sub.articleBody || '';
       document.getElementById('activeTeacherFeedback').value = sub.feedback || '';
 
+      // Reset checklist buttons to student's scores
       RUBRIC_CRITERIA.language.forEach(c => {
         updateCriterionButtonUI(c.id, sub.scores?.[c.id]);
       });
@@ -2714,6 +2743,7 @@ function getOrCreateTasksSheet() {
 
       calculateCurrentScores(sub);
 
+      // Restore annotation strokes
       annotationStrokes = Array.isArray(sub.annotations) ? JSON.parse(JSON.stringify(sub.annotations)) : [];
       setTimeout(() => {
         resizeAnnotationCanvas();
@@ -2735,6 +2765,7 @@ function getOrCreateTasksSheet() {
       updateSubmissionMetrics();
       renderSubmissionsTable();
 
+      // Push to Google Sheets backend
       if (googleSheetsUrl) {
         try {
           await fetch(googleSheetsUrl, {
@@ -2869,7 +2900,7 @@ function getOrCreateTasksSheet() {
       document.getElementById('studentResultModal')?.classList.add('hidden');
     }
 
-    async function searchStudentPaperResult() {
+    function searchStudentPaperResult() {
       const q = document.getElementById('studentSearchIdInput')?.value?.trim().toUpperCase();
       const container = document.getElementById('studentSearchResultContent');
       if (!container) return;
@@ -2879,29 +2910,8 @@ function getOrCreateTasksSheet() {
         return;
       }
 
+      const match = submissions.find(s => s.studentId === q);
       container.classList.remove('hidden');
-      container.innerHTML = `
-        <div class="p-6 text-center text-slate-500 text-xs">
-          <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-600 mb-2"></i>
-          <p class="font-bold">Checking Examination Cloud...</p>
-        </div>
-      `;
-
-      let match = submissions.find(s => s.studentId === q);
-
-      // Query Google Sheets directly if not found locally or to get freshest grade
-      if (googleSheetsUrl) {
-        try {
-          const res = await fetch(`${googleSheetsUrl}?action=getStudent&candidateId=${encodeURIComponent(q)}&_t=${Date.now()}`);
-          const json = await res.json();
-          if (json && json.submission) {
-            ingestStudentObject(json.submission);
-            match = json.submission;
-          }
-        } catch(e) {
-          console.warn('Live lookup notice:', e);
-        }
-      }
 
       if (!match) {
         container.innerHTML = `
@@ -2969,11 +2979,9 @@ function getOrCreateTasksSheet() {
       window.print();
     }
 
-    async function syncWithGoogleSheets(showUserFeedback = true) {
+    async function syncWithGoogleSheets() {
       if (!googleSheetsUrl) {
-        if (showUserFeedback) {
-          showNotification("Google Sheets Not Configured", "Please click 'Sheets Setup' and enter your Google Apps Script Web App URL.", "info", openSheetsConfigModal);
-        }
+        showNotification("Google Sheets Not Configured", "Please click 'Sheets Setup' and enter your Google Apps Script Web App URL.", "info", openSheetsConfigModal);
         return;
       }
 
@@ -2981,9 +2989,7 @@ function getOrCreateTasksSheet() {
       if (icon) icon.classList.add('fa-spin');
 
       try {
-        // Cache-busting URL to ensure fresh submissions from all browsers
-        const subUrl = `${googleSheetsUrl}?action=getSubmissions&_t=${Date.now()}`;
-        const response = await fetch(subUrl);
+        const response = await fetch(`${googleSheetsUrl}?action=getSubmissions`);
         const json = await response.json();
 
         let count = 0;
@@ -2997,9 +3003,8 @@ function getOrCreateTasksSheet() {
           renderSubmissionsTable();
         }
 
-        // Sync Tasks as well
         try {
-          const taskResp = await fetch(`${googleSheetsUrl}?action=getTasks&_t=${Date.now()}`);
+          const taskResp = await fetch(`${googleSheetsUrl}?action=getTasks`);
           const taskJson = await taskResp.json();
           if (taskJson && Array.isArray(taskJson.tasks) && taskJson.tasks.length > 0) {
             taskJson.tasks.forEach(remoteTask => {
@@ -3009,18 +3014,16 @@ function getOrCreateTasksSheet() {
             });
             saveTasksToStorage();
             renderTaskDropdown();
+          } else {
+            syncTasksToGoogleSheets();
           }
         } catch(taskErr) {
           console.warn('Tasks sync notice:', taskErr);
         }
 
-        if (showUserFeedback) {
-          showNotification("Sync Completed", `Synchronized ${count} student paper(s) and writing tasks with Google Sheets.`, "success");
-        }
+        showNotification("Sync Completed", `Synchronized ${count} student submission(s) and writing tasks with Google Sheets.`, "success");
       } catch (err) {
-        if (showUserFeedback) {
-          showNotification("Sync Failed", "Could not fetch from Google Sheets. Ensure your Apps Script is deployed as Web App with 'Who has access: Anyone'.", "error");
-        }
+        showNotification("Sync Failed", "Could not fetch from Google Sheets. Ensure the Web App is deployed with 'Who has access: Anyone'.", "error");
       } finally {
         if (icon) icon.classList.remove('fa-spin');
       }
@@ -3043,7 +3046,7 @@ function getOrCreateTasksSheet() {
         googleSheetsUrl = val;
         localStorage.setItem('igcse_sheets_url', val);
         closeSheetsConfigModal();
-        showNotification("URL Saved", "Google Sheets Web App endpoint updated. Running sync...", "success", () => syncWithGoogleSheets(true));
+        showNotification("URL Saved", "Google Sheets Web App endpoint updated.", "success");
       }
     }
 
@@ -3213,6 +3216,7 @@ function getOrCreateTasksSheet() {
       const words = sub.wordCount || 0;
       const body = (sub.articleBody || '').toLowerCase();
 
+      // Heuristic auto-mark evaluation
       const hasLinking = /however|moreover|furthermore|conversely|in addition|on the other hand|in conclusion|consequently/i.test(body);
       const hasComplex = /although|whereas|despite|in order to|which|while/i.test(body);
       const hasAdvancedVocab = /congested|convenient|sustainable|detrimental|alternative|subsequently|inevitable/i.test(body);
