@@ -76,6 +76,16 @@
       background: linear-gradient(to right, #2C3E63 0%, #2C3E63 70%, #B23A2E 70%, #B23A2E 100%);
     }
 
+    /* Candidate info fields: once a roster is loaded, the fields are
+       auto-filled and locked - style them as a legible "filled slip"
+       rather than a greyed-out disabled control. */
+    .student-info-field[readonly] {
+      background-color: #EEF1F8;
+      border-color: #B9C5DF;
+      color: #1A2740;
+      cursor: not-allowed;
+    }
+
     /* Speech bubble styling */
     .speech-bubble {
       position: relative;
@@ -269,74 +279,101 @@
 
   <main id="studentView" class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     
-    <!-- Candidate ID Identification Banner -->
-    <section class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
-      <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-        <div>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-700/80 text-indigo-100 mb-1">
-            <i class="fa-solid fa-user-pen mr-1.5"></i>Candidate Information
-          </span>
-          <h2 class="text-base sm:text-lg font-bold">Please confirm your student details before beginning</h2>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 w-full md:w-auto">
-          <div>
-            <label class="block text-[11px] text-indigo-200 font-medium mb-0.5">Candidate ID *</label>
-            <input 
-              type="text" 
-              id="studentIdInput" 
-              placeholder="e.g. SA-2026-042" 
-              oninput="syncCandidateId(this.value)"
-              class="w-full text-xs px-3 py-2 bg-indigo-950/60 border border-indigo-700/60 rounded-xl text-white placeholder-indigo-300 outline-none focus:ring-2 focus:ring-indigo-400 font-mono uppercase"
-            >
+    <!-- Candidate ID Identification Banner (Exam Admission Slip style) -->
+    <section class="bg-white rounded-2xl border-2 border-indigo-900 shadow-md relative overflow-hidden">
+      <div class="exam-rule"></div>
+      <div class="p-5 sm:p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-900 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <i class="fa-solid fa-id-card"></i>
+            </div>
+            <div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 uppercase tracking-wide mb-1">
+                Candidate Information
+              </span>
+              <h2 class="text-base sm:text-lg font-bold font-serif text-slate-900 leading-snug">Please confirm your student details before beginning</h2>
+            </div>
           </div>
-          <div>
-            <label class="block text-[11px] text-indigo-200 font-medium mb-0.5">Full Name *</label>
-            <input 
-              type="text" 
-              id="studentNameInput" 
-              placeholder="e.g. Jane Doe" 
-              class="w-full text-xs px-3 py-2 bg-indigo-950/60 border border-indigo-700/60 rounded-xl text-white placeholder-indigo-300 outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-          </div>
-          <div>
-            <label class="block text-[11px] text-indigo-200 font-medium mb-0.5">Class / Section</label>
-            <input 
-              type="text" 
-              id="studentClassInput" 
-              placeholder="e.g. Year 11-A" 
-              class="w-full text-xs px-3 py-2 bg-indigo-950/60 border border-indigo-700/60 rounded-xl text-white placeholder-indigo-300 outline-none focus:ring-2 focus:ring-indigo-400"
-            >
+          <div class="w-full md:w-auto md:min-w-[440px] space-y-2.5">
+            <div id="studentRosterDropdownWrapper" class="hidden">
+              <label class="block text-[11px] font-bold text-indigo-700 uppercase tracking-wide mb-1">Select Your Name</label>
+              <select
+                id="studentSelectDropdown"
+                onchange="handleStudentSelect(this.value)"
+                class="w-full text-sm px-3 py-2.5 bg-white border-2 border-indigo-200 rounded-xl text-slate-900 font-semibold outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 shadow-sm"
+              >
+                <option value="">-- Select your name --</option>
+              </select>
+              <p class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Not on the list? Ask your teacher to add you to the Students sheet.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full">
+            <div>
+              <label class="block text-[11px] text-slate-500 font-bold uppercase tracking-wide mb-1">Candidate ID *</label>
+              <input 
+                type="text" 
+                id="studentIdInput" 
+                placeholder="e.g. SA-2026-042" 
+                oninput="syncCandidateId(this.value)"
+                class="student-info-field w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 font-mono font-bold uppercase"
+              >
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-500 font-bold uppercase tracking-wide mb-1">Full Name *</label>
+              <input 
+                type="text" 
+                id="studentNameInput" 
+                placeholder="e.g. Jane Doe" 
+                class="student-info-field w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 font-semibold"
+              >
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-500 font-bold uppercase tracking-wide mb-1">Class / Section</label>
+              <input 
+                type="text" 
+                id="studentClassInput" 
+                placeholder="e.g. Year 11-A" 
+                class="student-info-field w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 font-semibold"
+              >
+            </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Task Prompt Card: Exercise 6 with 4 Interactive Speech Bubbles -->
-    <section id="taskPromptSection" class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
-      
-      <!-- Mark Scheme Allocation Badge -->
-      <div class="absolute top-0 right-0 bg-indigo-50 text-indigo-800 text-xs font-bold px-4 py-1.5 rounded-bl-2xl border-l border-b border-indigo-200">
-        Total Marks: 15 (Content: 6 marks | Language: 9 marks)
+    <!-- Task Prompt Card: Exercise 6 with 4 Interactive Comment Extracts (Exam Paper style) -->
+    <section id="taskPromptSection" class="bg-[#FEFCF7] rounded-2xl border-2 border-slate-800 shadow-sm p-6 sm:p-8 relative overflow-hidden">
+
+      <!-- Question Number Ribbon -->
+      <div class="absolute top-0 left-0 bg-indigo-900 text-white text-xs font-bold px-4 py-1.5 rounded-br-xl tracking-wide uppercase">
+        <span id="taskBadgeLabel">Exercise 6 • Task 1</span>
       </div>
 
-      <div class="max-w-3xl">
-        <span id="taskBadgeLabel" class="inline-block px-2.5 py-1 text-xs font-extrabold bg-amber-100 text-amber-900 rounded-md mb-2">Exercise 6 • Task 1</span>
+      <!-- Mark Scheme Allocation Badge -->
+      <div class="absolute top-0 right-0 bg-white text-right px-4 py-1.5 rounded-bl-xl border-l-2 border-b-2 border-examred-500 font-mono leading-tight">
+        <div class="text-sm font-extrabold text-examred-600">[15]</div>
+        <div class="text-[9px] font-semibold text-slate-500 tracking-normal normal-case">Content 6 • Language 9</div>
+      </div>
+
+      <div class="max-w-3xl mt-6">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Read the following question carefully</p>
         <h2 id="taskMainHeading" class="text-xl sm:text-2xl font-serif font-bold text-slate-900 leading-snug">
           Your school year group is doing a project on the advantages and disadvantages of the car as a means of transport.
         </h2>
-        <p class="mt-2 text-slate-600 font-medium">
+        <div class="exam-rule mt-4 mb-3 opacity-70"></div>
+        <p class="text-slate-700 font-serif italic">
           Here are some comments on the subject:
         </p>
       </div>
 
-      <!-- 4 Speech Bubbles Container (Populated Dynamically) -->
+      <!-- 4 Comment Extracts Container (Populated Dynamically) -->
       <div id="dynamicSpeechBubblesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mb-3 pt-1">
-        <!-- Bubbles injected by applyActiveTaskView() -->
+        <!-- Comment extracts injected by applyActiveTaskView() -->
       </div>
 
       <!-- Original Exam Scan Image (if available from PDF) -->
-      <div id="customTaskPdfScanWrapper" class="hidden mt-3 pt-3 border-t border-slate-200">
+      <div id="customTaskPdfScanWrapper" class="hidden mt-3 pt-3 border-t border-slate-300">
         <button type="button" onclick="toggleTaskPdfScan()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 inline-flex items-center">
           <i class="fa-solid fa-file-pdf mr-1.5"></i><span id="togglePdfScanBtnText">View Original Exam Paper Scan</span>
         </button>
@@ -1343,6 +1380,9 @@
     let googleSheetsUrl = localStorage.getItem('igcse_sheets_url') || DEFAULT_SHEETS_URL;
     let editingTaskId = null; // Track if we are editing an existing task
 
+    /* Student Roster (pulled from the "Students" tab in the Google Sheet) */
+    let availableStudents = [];
+
     /* Task 1 Default Data with 4 Speech Bubbles */
     let availableTasks = [
       {
@@ -1431,6 +1471,22 @@ function doGet(e) {
       }
     }
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', tasks: tasks }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'getStudents') {
+    var studentSheet = getOrCreateStudentsSheet();
+    var studentData = studentSheet.getDataRange().getValues();
+    var students = [];
+    for (var s = 1; s < studentData.length; s++) {
+      if (!studentData[s][0]) continue;
+      students.push({
+        id: String(studentData[s][0]).toUpperCase(),
+        name: studentData[s][1] || '',
+        className: studentData[s][2] || ''
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success', students: students }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -1552,6 +1608,19 @@ function getOrCreateTasksSheet() {
     sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e0e7ff');
   }
   return sheet;
+}
+
+function getOrCreateStudentsSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Students');
+  if (!sheet) {
+    sheet = ss.insertSheet('Students');
+    var headers = ['Candidate ID', 'Full Name', 'Class / Section'];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#fef3c7');
+    // Add the roster here: one row per student, e.g. SA-2026-001 | Jane Doe | Year 11-A
+  }
+  return sheet;
 }`;
 
     /* Canvas Drawing & Annotation Engine Variables */
@@ -1576,6 +1645,7 @@ function getOrCreateTasksSheet() {
 
     window.onload = function () {
       loadStoredTasks();
+      loadStoredStudents();
       buildRubricChecklistUI();
       loadSubmissionsFromMemory();
       initAnnotationCanvas();
@@ -1636,6 +1706,22 @@ function getOrCreateTasksSheet() {
         // and shows an error if the URL is unreachable.
         console.warn('Auto task sync skipped:', err);
       }
+
+      // Pull latest student roster (the Sheet is the source of truth,
+      // so replace the local list rather than merge)
+      try {
+        const resp = await fetch(`${googleSheetsUrl}?action=getStudents`);
+        const json = await resp.json();
+        if (json && Array.isArray(json.students)) {
+          availableStudents = json.students;
+          saveStudentsToStorage();
+          renderStudentDropdown();
+          applyStudentRosterUI();
+        }
+      } catch (err) {
+        // Silent on load - roster stays whatever was last cached locally.
+        console.warn('Auto student roster sync skipped:', err);
+      }
     }
 
     function loadStoredTasks() {
@@ -1659,6 +1745,83 @@ function getOrCreateTasksSheet() {
       } catch(e) {
         console.warn('Storage quota limit reached for tasks');
       }
+    }
+
+    /* Student Roster: load/save the cached copy, render the dropdown,
+       and toggle between "pick your name" mode and free-text mode. */
+    function loadStoredStudents() {
+      const stored = localStorage.getItem('igcse_esl_students');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) availableStudents = parsed;
+        } catch(e) {}
+      }
+      renderStudentDropdown();
+      applyStudentRosterUI();
+    }
+
+    function saveStudentsToStorage() {
+      try {
+        localStorage.setItem('igcse_esl_students', JSON.stringify(availableStudents));
+      } catch(e) {
+        console.warn('Storage quota limit reached for students');
+      }
+    }
+
+    function renderStudentDropdown() {
+      const select = document.getElementById('studentSelectDropdown');
+      if (!select) return;
+      const currentId = document.getElementById('studentIdInput')?.value?.trim().toUpperCase();
+      select.innerHTML = '';
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.innerText = '-- Select your name --';
+      select.appendChild(placeholder);
+
+      const sorted = [...availableStudents].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      sorted.forEach(stu => {
+        const opt = document.createElement('option');
+        opt.value = stu.id;
+        opt.innerText = stu.className ? `${stu.name} (${stu.className})` : stu.name;
+        if (stu.id === currentId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyStudentRosterUI() {
+      const wrapper = document.getElementById('studentRosterDropdownWrapper');
+      const idInp = document.getElementById('studentIdInput');
+      const nameInp = document.getElementById('studentNameInput');
+      const classInp = document.getElementById('studentClassInput');
+      const hasRoster = availableStudents.length > 0;
+
+      if (wrapper) wrapper.classList.toggle('hidden', !hasRoster);
+
+      [idInp, nameInp, classInp].forEach(inp => {
+        if (!inp) return;
+        inp.readOnly = hasRoster;
+      });
+    }
+
+    function handleStudentSelect(studentId) {
+      const stu = availableStudents.find(s => s.id === studentId);
+      const idInp = document.getElementById('studentIdInput');
+      const nameInp = document.getElementById('studentNameInput');
+      const classInp = document.getElementById('studentClassInput');
+
+      if (!stu) {
+        if (idInp) idInp.value = '';
+        if (nameInp) nameInp.value = '';
+        if (classInp) classInp.value = '';
+        return;
+      }
+
+      if (idInp) idInp.value = stu.id;
+      if (nameInp) nameInp.value = stu.name || '';
+      if (classInp) classInp.value = stu.className || '';
+      syncCandidateId(stu.id);
     }
 
     function renderTaskDropdown() {
@@ -1702,15 +1865,17 @@ function getOrCreateTasksSheet() {
         const bubbles = activeTask.bubbles || [];
 
         bubbles.forEach((b, idx) => {
-          const isLeft = idx % 2 === 0;
           const bubbleDiv = document.createElement('div');
-          bubbleDiv.className = `speech-bubble ${b.tail || (isLeft ? 'bubble-tail-bottom-left' : 'bubble-tail-bottom-right')} p-2.5 sm:p-3 shadow-sm bg-slate-50/40 border-indigo-950 flex flex-col justify-between`;
+          bubbleDiv.className = 'relative border-2 border-slate-300 bg-white rounded-lg p-3 sm:p-4 flex flex-col justify-between shadow-sm';
 
           bubbleDiv.innerHTML = `
-            <p class="text-xs sm:text-[13px] font-medium text-slate-800 leading-snug select-none">
-              ${escapeHtml(b.text)}
-            </p>
-            <div class="mt-1 flex items-center justify-end text-xs text-slate-500 pt-1 border-t border-slate-100/80">
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-quote-left text-indigo-300 text-sm mt-0.5 shrink-0"></i>
+              <p class="text-xs sm:text-[13px] font-serif italic text-slate-800 leading-snug select-none">
+                ${escapeHtml(b.text)}
+              </p>
+            </div>
+            <div class="mt-2 pt-2 flex items-center justify-end border-t border-dashed border-slate-300">
               <button type="button" onclick="insertNote('${escapeHtml(b.note || b.text.replace(/["“”]/g, ''))}')" class="px-2 py-0.5 text-[10px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition inline-flex items-center">
                 <i class="fa-solid fa-plus mr-1 text-[9px]"></i>Add to plan
               </button>
