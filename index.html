@@ -306,6 +306,38 @@
                 <option value="">-- Select your name --</option>
               </select>
               <p class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Not on the list? Ask your teacher to add you to the Students sheet.</p>
+
+              <!-- Candidate ID confirmation gate - keeps a student from opening a
+                   classmate's account just by picking their name from the list -->
+              <div id="studentIdConfirmWrapper" class="hidden mt-2">
+                <label class="block text-[11px] font-bold text-indigo-700 uppercase tracking-wide mb-1">Enter Your Candidate ID to Continue</label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="studentIdConfirmInput"
+                    placeholder="e.g. SA-2026-042"
+                    onkeydown="if(event.key==='Enter'){confirmStudentLogin();}"
+                    class="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono uppercase outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
+                  >
+                  <button
+                    type="button"
+                    id="studentUnlockBtn"
+                    onclick="confirmStudentLogin()"
+                    class="px-3 py-2 text-xs font-bold text-white bg-indigo-900 hover:bg-indigo-800 rounded-xl transition inline-flex items-center whitespace-nowrap"
+                  >
+                    <i class="fa-solid fa-unlock mr-1.5"></i>Unlock
+                  </button>
+                </div>
+                <p id="studentIdConfirmError" class="hidden text-[10px] text-examred-600 font-semibold mt-1">
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i>That Candidate ID doesn't match this name. Please check and try again.
+                </p>
+              </div>
+
+              <!-- Verified state -->
+              <div id="studentLoggedInBadge" class="hidden mt-2 flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                <span class="text-xs font-bold text-emerald-800"><i class="fa-solid fa-circle-check mr-1.5"></i><span id="studentLoggedInName"></span> — verified</span>
+                <button type="button" onclick="switchStudentAccount()" class="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline">Not you? Switch</button>
+              </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full">
             <div>
@@ -1382,6 +1414,7 @@
 
     /* Student Roster (pulled from the "Students" tab in the Google Sheet) */
     let availableStudents = [];
+    let pendingStudentSelection = null; // student picked from dropdown, awaiting Candidate ID confirmation
 
     /* Task 1 Default Data with 4 Speech Bubbles */
     let availableTasks = [
@@ -1475,18 +1508,47 @@ function doGet(e) {
   }
 
   if (action === 'getStudents') {
+    // NOTE: Candidate IDs are intentionally NOT included here. The
+    // dropdown only needs a name and a row reference; the ID itself
+    // is only ever checked server-side, in the verifyStudent action.
     var studentSheet = getOrCreateStudentsSheet();
     var studentData = studentSheet.getDataRange().getValues();
     var students = [];
     for (var s = 1; s < studentData.length; s++) {
       if (!studentData[s][0]) continue;
       students.push({
-        id: String(studentData[s][0]).toUpperCase(),
+        row: s + 1, // 1-based sheet row - safe to expose, it's not the ID
         name: studentData[s][1] || '',
         className: studentData[s][2] || ''
       });
     }
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', students: students }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'verifyStudent') {
+    // Server-side login check: the browser sends a row number (not the
+    // ID) and the ID the student typed. We only ever return the real
+    // Candidate ID / Name / Class back to the browser if they match.
+    var verifySheet = getOrCreateStudentsSheet();
+    var verifyRow = parseInt(e.parameter.row, 10);
+    var typedId = String(e.parameter.candidateId || '').trim().toUpperCase();
+
+    if (verifyRow && verifyRow > 1 && typedId) {
+      var lastRow = verifySheet.getLastRow();
+      if (verifyRow <= lastRow) {
+        var rowValues = verifySheet.getRange(verifyRow, 1, 1, 3).getValues()[0];
+        var actualId = String(rowValues[0] || '').trim().toUpperCase();
+        if (actualId && actualId === typedId) {
+          return ContentService.createTextOutput(JSON.stringify({
+            status: 'success',
+            student: { id: actualId, name: rowValues[1] || '', className: rowValues[2] || '' }
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'No match' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -1772,7 +1834,6 @@ function getOrCreateStudentsSheet() {
     function renderStudentDropdown() {
       const select = document.getElementById('studentSelectDropdown');
       if (!select) return;
-      const currentId = document.getElementById('studentIdInput')?.value?.trim().toUpperCase();
       select.innerHTML = '';
 
       const placeholder = document.createElement('option');
@@ -1780,12 +1841,14 @@ function getOrCreateStudentsSheet() {
       placeholder.innerText = '-- Select your name --';
       select.appendChild(placeholder);
 
+      // Candidate IDs are never sent to the browser - options are keyed
+      // by row number, and the real ID is only revealed by the server
+      // once verifyStudent confirms a matching Candidate ID.
       const sorted = [...availableStudents].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       sorted.forEach(stu => {
         const opt = document.createElement('option');
-        opt.value = stu.id;
+        opt.value = stu.row;
         opt.innerText = stu.className ? `${stu.name} (${stu.className})` : stu.name;
-        if (stu.id === currentId) opt.selected = true;
         select.appendChild(opt);
       });
     }
@@ -1805,23 +1868,123 @@ function getOrCreateStudentsSheet() {
       });
     }
 
-    function handleStudentSelect(studentId) {
-      const stu = availableStudents.find(s => s.id === studentId);
+    function handleStudentSelect(rowValue) {
+      const idInp = document.getElementById('studentIdInput');
+      const nameInp = document.getElementById('studentNameInput');
+      const classInp = document.getElementById('studentClassInput');
+      const confirmWrapper = document.getElementById('studentIdConfirmWrapper');
+      const confirmInput = document.getElementById('studentIdConfirmInput');
+      const confirmError = document.getElementById('studentIdConfirmError');
+      const loggedInBadge = document.getElementById('studentLoggedInBadge');
+
+      // Selecting a name never reveals or fills the ID directly - it only
+      // stages the pick (by row reference, not by ID). The account only
+      // unlocks once the server confirms the typed Candidate ID matches
+      // that row, so classmates can't browse each other's work just by
+      // picking a name from the list.
+      if (idInp) idInp.value = '';
+      if (nameInp) nameInp.value = '';
+      if (classInp) classInp.value = '';
+      if (confirmInput) confirmInput.value = '';
+      if (confirmError) confirmError.classList.add('hidden');
+      if (loggedInBadge) loggedInBadge.classList.add('hidden');
+      syncCandidateId('');
+
+      pendingStudentSelection = availableStudents.find(s => String(s.row) === String(rowValue)) || null;
+
+      if (pendingStudentSelection && confirmWrapper) {
+        confirmWrapper.classList.remove('hidden');
+        confirmInput?.focus();
+      } else if (confirmWrapper) {
+        confirmWrapper.classList.add('hidden');
+      }
+    }
+
+    async function confirmStudentLogin() {
+      if (!pendingStudentSelection) return;
+
+      const confirmInput = document.getElementById('studentIdConfirmInput');
+      const confirmError = document.getElementById('studentIdConfirmError');
+      const confirmWrapper = document.getElementById('studentIdConfirmWrapper');
+      const loggedInBadge = document.getElementById('studentLoggedInBadge');
+      const loggedInName = document.getElementById('studentLoggedInName');
+      const idInp = document.getElementById('studentIdInput');
+      const nameInp = document.getElementById('studentNameInput');
+      const classInp = document.getElementById('studentClassInput');
+      const unlockBtn = document.getElementById('studentUnlockBtn');
+
+      const typed = confirmInput?.value?.trim().toUpperCase();
+      if (!typed) {
+        if (confirmError) {
+          confirmError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>Please enter your Candidate ID.';
+          confirmError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (!googleSheetsUrl) {
+        showNotification("Google Sheets Not Configured", "Please click 'Sheets Setup' and enter your Google Apps Script Web App URL.", "info", openSheetsConfigModal);
+        return;
+      }
+
+      if (confirmError) confirmError.classList.add('hidden');
+      if (unlockBtn) {
+        unlockBtn.disabled = true;
+        unlockBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Checking...';
+      }
+
+      try {
+        const url = `${googleSheetsUrl}?action=verifyStudent&row=${encodeURIComponent(pendingStudentSelection.row)}&candidateId=${encodeURIComponent(typed)}`;
+        const resp = await fetch(url);
+        const json = await resp.json();
+
+        if (json && json.status === 'success' && json.student) {
+          if (idInp) idInp.value = json.student.id;
+          if (nameInp) nameInp.value = json.student.name || '';
+          if (classInp) classInp.value = json.student.className || '';
+          syncCandidateId(json.student.id);
+
+          if (confirmWrapper) confirmWrapper.classList.add('hidden');
+          if (loggedInBadge) {
+            loggedInBadge.classList.remove('hidden');
+            if (loggedInName) loggedInName.innerText = json.student.name || json.student.id;
+          }
+        } else {
+          if (confirmError) {
+            confirmError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>That Candidate ID doesn\'t match this name. Please check and try again.';
+            confirmError.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        console.warn('Student verification failed:', err);
+        if (confirmError) {
+          confirmError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>Could not reach the server to verify your ID. Please try again.';
+          confirmError.classList.remove('hidden');
+        }
+      } finally {
+        if (unlockBtn) {
+          unlockBtn.disabled = false;
+          unlockBtn.innerHTML = '<i class="fa-solid fa-unlock mr-1.5"></i>Unlock';
+        }
+      }
+    }
+
+    function switchStudentAccount() {
+      const select = document.getElementById('studentSelectDropdown');
+      const confirmWrapper = document.getElementById('studentIdConfirmWrapper');
+      const loggedInBadge = document.getElementById('studentLoggedInBadge');
       const idInp = document.getElementById('studentIdInput');
       const nameInp = document.getElementById('studentNameInput');
       const classInp = document.getElementById('studentClassInput');
 
-      if (!stu) {
-        if (idInp) idInp.value = '';
-        if (nameInp) nameInp.value = '';
-        if (classInp) classInp.value = '';
-        return;
-      }
-
-      if (idInp) idInp.value = stu.id;
-      if (nameInp) nameInp.value = stu.name || '';
-      if (classInp) classInp.value = stu.className || '';
-      syncCandidateId(stu.id);
+      pendingStudentSelection = null;
+      if (select) select.value = '';
+      if (confirmWrapper) confirmWrapper.classList.add('hidden');
+      if (loggedInBadge) loggedInBadge.classList.add('hidden');
+      if (idInp) idInp.value = '';
+      if (nameInp) nameInp.value = '';
+      if (classInp) classInp.value = '';
+      syncCandidateId('');
     }
 
     function renderTaskDropdown() {
@@ -2238,7 +2401,7 @@ function getOrCreateStudentsSheet() {
 
     function syncCandidateId(val) {
       const navInp = document.getElementById('navStudentIdInput');
-      if (navInp && val) navInp.value = val;
+      if (navInp) navInp.value = val || '';
     }
 
     function updateWordCount() {
