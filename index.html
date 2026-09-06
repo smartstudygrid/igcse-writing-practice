@@ -1588,13 +1588,32 @@ function getOrCreateTasksSheet() {
 
       switchView('student');
 
-      // Auto-pull assignments from Google Sheets so any PC/browser sees
-      // the same task list without needing a manual "Sync Sheets" click.
-      autoLoadTasksFromSheets();
+      // Auto-sync with Google Sheets on every load, so any PC/browser
+      // that opens the app first pulls the latest submissions and
+      // tasks without needing a manual "Sync Sheets" click.
+      autoSyncOnLoad();
     };
 
-    async function autoLoadTasksFromSheets() {
+    async function autoSyncOnLoad() {
       if (!googleSheetsUrl) return;
+
+      // Pull latest submissions
+      try {
+        const response = await fetch(`${googleSheetsUrl}?action=getSubmissions`);
+        const json = await response.json();
+        if (json && Array.isArray(json.submissions)) {
+          json.submissions.forEach(item => { ingestStudentObject(item); });
+          saveSubmissionsToStorage();
+          updateSubmissionMetrics();
+          renderSubmissionsTable();
+        }
+      } catch (err) {
+        // Silent on load - the "Sync Sheets" button still works manually
+        // and shows an error if the URL is unreachable.
+        console.warn('Auto submissions sync skipped:', err);
+      }
+
+      // Pull latest tasks
       try {
         const resp = await fetch(`${googleSheetsUrl}?action=getTasks`);
         const json = await resp.json();
@@ -1615,7 +1634,7 @@ function getOrCreateTasksSheet() {
       } catch (err) {
         // Silent on load - the "Sync Sheets" button still works manually
         // and shows an error if the URL is unreachable.
-        console.warn('Auto task load from Sheets skipped:', err);
+        console.warn('Auto task sync skipped:', err);
       }
     }
 
