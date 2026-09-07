@@ -383,14 +383,24 @@
       </div>
 
       <!-- Mark Scheme Allocation Badge -->
-      <div class="absolute top-0 right-0 bg-white text-right px-4 py-1.5 rounded-bl-xl border-l-2 border-b-2 border-examred-500 font-mono leading-tight">
-        <div class="text-sm font-extrabold text-examred-600">[15]</div>
-        <div class="text-[9px] font-semibold text-slate-500 tracking-normal normal-case">Content 6 • Language 9</div>
+      <div class="absolute top-0 right-0 bg-examred-50 text-right px-4 py-2 rounded-bl-2xl border-l-2 border-b-2 border-examred-500">
+        <div class="flex items-baseline justify-end gap-1 leading-none">
+          <span class="text-2xl font-serif font-extrabold text-examred-600">15</span>
+          <span class="text-[9px] font-bold uppercase tracking-wider text-examred-500">marks</span>
+        </div>
+        <div class="flex items-center justify-end gap-1 mt-1.5">
+          <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+            <i class="fa-solid fa-pen-nib text-[8px]"></i>Content 6
+          </span>
+          <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-examred-100 text-examred-700">
+            <i class="fa-solid fa-language text-[8px]"></i>Language 9
+          </span>
+        </div>
       </div>
 
       <div class="max-w-3xl mt-6">
         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Read the following question carefully</p>
-        <h2 id="taskMainHeading" class="text-xl sm:text-2xl font-serif font-bold text-slate-900 leading-snug">
+        <h2 id="taskMainHeading" class="text-base font-serif font-bold text-slate-900 leading-snug">
           Your school year group is doing a project on the advantages and disadvantages of the car as a means of transport.
         </h2>
         <div class="exam-rule mt-4 mb-3 opacity-70"></div>
@@ -999,13 +1009,26 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Topic / Main Prompt Statement *</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-slate-700">Topic / Main Prompt Statement *</label>
+            <div class="flex items-center gap-0.5 bg-slate-100 border border-slate-200 rounded-lg p-0.5">
+              <button type="button" onclick="wrapHeadingSelection('bold')" title="Bold" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-slate-700 hover:bg-white hover:text-indigo-700 rounded-md transition"><i class="fa-solid fa-bold"></i></button>
+              <button type="button" onclick="wrapHeadingSelection('italic')" title="Italic" class="w-6 h-6 flex items-center justify-center text-xs italic text-slate-700 hover:bg-white hover:text-indigo-700 rounded-md transition"><i class="fa-solid fa-italic"></i></button>
+              <button type="button" onclick="wrapHeadingSelection('underline')" title="Underline" class="w-6 h-6 flex items-center justify-center text-xs underline text-slate-700 hover:bg-white hover:text-indigo-700 rounded-md transition"><i class="fa-solid fa-underline"></i></button>
+              <span class="w-px h-4 bg-slate-300 mx-0.5"></span>
+              <button type="button" onclick="insertHeadingListItem('bullet')" title="Bullet list" class="w-6 h-6 flex items-center justify-center text-xs text-slate-700 hover:bg-white hover:text-indigo-700 rounded-md transition"><i class="fa-solid fa-list-ul"></i></button>
+              <button type="button" onclick="insertHeadingListItem('number')" title="Numbered list" class="w-6 h-6 flex items-center justify-center text-xs text-slate-700 hover:bg-white hover:text-indigo-700 rounded-md transition"><i class="fa-solid fa-list-ol"></i></button>
+              <span class="w-px h-4 bg-slate-300 mx-0.5"></span>
+              <button type="button" onclick="clearHeadingFormatting()" title="Clear formatting" class="w-6 h-6 flex items-center justify-center text-xs text-slate-500 hover:bg-white hover:text-examred-600 rounded-md transition"><i class="fa-solid fa-text-slash"></i></button>
+            </div>
+          </div>
           <textarea 
             id="newTaskHeadingInput" 
-            rows="2" 
+            rows="4" 
             placeholder="e.g. Your school year group is doing a project on the advantages and disadvantages of..." 
             class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-800"
           ></textarea>
+          <p class="text-[10px] text-slate-400 mt-1">Select text and use Bold/Italic/Underline, or place your cursor on a line and use the list buttons. Press Enter for a line break; leave a blank line between paragraphs.</p>
         </div>
 
         <!-- 4 Extracted Friend Comments (Rendered like Task 1) -->
@@ -2025,7 +2048,7 @@ function getOrCreateStudentsSheet() {
       }
 
       if (headingEl) {
-        headingEl.innerText = activeTask.heading || activeTask.title;
+        headingEl.innerHTML = parseFormattedHeading(activeTask.heading || activeTask.title);
       }
 
       if (bubblesGrid) {
@@ -2233,6 +2256,130 @@ function getOrCreateStudentsSheet() {
       if (quotes[1] && b2) b2.value = `“${quotes[1]}”`;
       if (quotes[2] && b3) b3.value = `“${quotes[2]}”`;
       if (quotes[3] && b4) b4.value = `“${quotes[3]}”`;
+    }
+
+    /* Lightweight markdown-style formatting for the task heading:
+       **bold**, *italic*, _underline_, "- " bullet lines, "1. "
+       numbered lines, blank line = new paragraph, single line
+       break = <br>. Built line-by-line so the output can only ever
+       contain a small fixed set of safe tags (p/br/ul/ol/li/b/i/u) -
+       all raw text is escaped before any tag is added. */
+    function applyInlineFormatting(str) {
+      let safe = escapeHtml(str);
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+      safe = safe.replace(/\*([^*]+)\*/g, '<i>$1</i>');
+      safe = safe.replace(/_([^_]+)_/g, '<u>$1</u>');
+      return safe;
+    }
+
+    function parseFormattedHeading(raw) {
+      const text = raw || '';
+      const lines = text.split('\n');
+      let html = '';
+      let i = 0;
+
+      while (i < lines.length) {
+        const line = lines[i];
+
+        // Blank line: just a paragraph separator, skip it
+        if (line.trim() === '') {
+          i++;
+          continue;
+        }
+
+        // Bullet list block
+        if (/^\s*-\s+/.test(line)) {
+          const items = [];
+          while (i < lines.length && /^\s*-\s+/.test(lines[i])) {
+            items.push(applyInlineFormatting(lines[i].replace(/^\s*-\s+/, '')));
+            i++;
+          }
+          html += '<ul class="list-disc pl-5 space-y-0.5 my-1.5">' + items.map(it => `<li>${it}</li>`).join('') + '</ul>';
+          continue;
+        }
+
+        // Numbered list block
+        if (/^\s*\d+\.\s+/.test(line)) {
+          const items = [];
+          while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
+            items.push(applyInlineFormatting(lines[i].replace(/^\s*\d+\.\s+/, '')));
+            i++;
+          }
+          html += '<ol class="list-decimal pl-5 space-y-0.5 my-1.5">' + items.map(it => `<li>${it}</li>`).join('') + '</ol>';
+          continue;
+        }
+
+        // Plain paragraph: consecutive non-blank, non-list lines,
+        // joined with <br> so single line breaks are preserved too
+        const paraLines = [];
+        while (i < lines.length && lines[i].trim() !== '' && !/^\s*-\s+/.test(lines[i]) && !/^\s*\d+\.\s+/.test(lines[i])) {
+          paraLines.push(applyInlineFormatting(lines[i]));
+          i++;
+        }
+        html += '<p class="mb-2 last:mb-0">' + paraLines.join('<br>') + '</p>';
+      }
+
+      return html || applyInlineFormatting(text);
+    }
+
+    function wrapHeadingSelection(style) {
+      const ta = document.getElementById('newTaskHeadingInput');
+      if (!ta) return;
+      const markers = { bold: '**', italic: '*', underline: '_' };
+      const marker = markers[style];
+      if (!marker) return;
+
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const value = ta.value;
+      const selected = value.slice(start, end) || 'text';
+
+      ta.value = value.slice(0, start) + marker + selected + marker + value.slice(end);
+      ta.focus();
+      ta.selectionStart = start + marker.length;
+      ta.selectionEnd = start + marker.length + selected.length;
+    }
+
+    function insertHeadingListItem(type) {
+      const ta = document.getElementById('newTaskHeadingInput');
+      if (!ta) return;
+
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const value = ta.value;
+
+      // Work on whichever whole lines the cursor/selection touches
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      let lineEnd = value.indexOf('\n', end);
+      if (lineEnd === -1) lineEnd = value.length;
+
+      const block = value.slice(lineStart, lineEnd);
+      const lines = block.split('\n');
+
+      let counter = 1;
+      const prefixed = lines.map(line => {
+        const stripped = line.replace(/^\s*-\s+/, '').replace(/^\s*\d+\.\s+/, '');
+        if (type === 'bullet') return '- ' + stripped;
+        return (counter++) + '. ' + stripped;
+      });
+
+      const newBlock = prefixed.join('\n');
+      ta.value = value.slice(0, lineStart) + newBlock + value.slice(lineEnd);
+      ta.focus();
+      const newPos = lineStart + newBlock.length;
+      ta.selectionStart = ta.selectionEnd = newPos;
+    }
+
+    function clearHeadingFormatting() {
+      const ta = document.getElementById('newTaskHeadingInput');
+      if (!ta) return;
+      ta.value = ta.value
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/_([^_]+)_/g, '$1')
+        .split('\n')
+        .map(line => line.replace(/^\s*-\s+/, '').replace(/^\s*\d+\.\s+/, ''))
+        .join('\n');
     }
 
     async function processAndSaveNewTask() {
