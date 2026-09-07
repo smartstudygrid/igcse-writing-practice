@@ -1750,14 +1750,19 @@ function getOrCreateStudentsSheet() {
         const resp = await fetch(`${googleSheetsUrl}?action=getTasks`);
         const json = await resp.json();
         if (json && Array.isArray(json.tasks) && json.tasks.length > 0) {
-          let added = 0;
+          let changed = false;
           json.tasks.forEach(remoteTask => {
-            if (remoteTask.id && !availableTasks.some(t => t.id === remoteTask.id)) {
+            if (!remoteTask.id) return;
+            const idx = availableTasks.findIndex(t => t.id === remoteTask.id);
+            if (idx === -1) {
               availableTasks.push(remoteTask);
-              added++;
+              changed = true;
+            } else if (JSON.stringify(availableTasks[idx]) !== JSON.stringify(remoteTask)) {
+              availableTasks[idx] = remoteTask;
+              changed = true;
             }
           });
-          if (added > 0) {
+          if (changed) {
             saveTasksToStorage();
             renderTaskDropdown();
             applyActiveTaskView();
@@ -3355,12 +3360,17 @@ function getOrCreateStudentsSheet() {
           const taskJson = await taskResp.json();
           if (taskJson && Array.isArray(taskJson.tasks) && taskJson.tasks.length > 0) {
             taskJson.tasks.forEach(remoteTask => {
-              if (remoteTask.id && !availableTasks.some(t => t.id === remoteTask.id)) {
+              if (!remoteTask.id) return;
+              const idx = availableTasks.findIndex(t => t.id === remoteTask.id);
+              if (idx === -1) {
                 availableTasks.push(remoteTask);
+              } else {
+                availableTasks[idx] = remoteTask;
               }
             });
             saveTasksToStorage();
             renderTaskDropdown();
+            applyActiveTaskView();
           } else {
             syncTasksToGoogleSheets();
           }
